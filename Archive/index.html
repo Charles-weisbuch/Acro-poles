@@ -24,6 +24,7 @@
     --orange-dark:#c65a1e;
     --orange-soft:#fbe4d2;
     --danger:#b8442c;
+    --green:#4c7a4c;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -48,17 +49,9 @@
     z-index:20;
     border-bottom:3px solid var(--orange);
   }
-  header .brand{
-    font-size:22px;
-    font-weight:700;
-    letter-spacing:-0.01em;
-  }
+  header .brand{font-size:22px;font-weight:700;letter-spacing:-0.01em;}
   header .brand span{color:var(--orange);}
-  header .sub{
-    font-size:12.5px;
-    color:#bdb9b1;
-    margin-top:2px;
-  }
+  header .sub{font-size:12.5px;color:#bdb9b1;margin-top:2px;}
   .gear-btn{
     background:var(--header-soft);
     border:1px solid #47433d;
@@ -71,11 +64,7 @@
   }
   .gear-btn:active{background:var(--orange);}
 
-  main{
-    max-width:480px;
-    margin:0 auto;
-    padding:18px 16px 8px;
-  }
+  main{max-width:480px;margin:0 auto;padding:18px 16px 8px;}
 
   .card{
     background:var(--surface);
@@ -119,128 +108,80 @@
     cursor:pointer;
     user-select:none;
   }
-  .chip.active{
-    background:var(--orange);
-    border-color:var(--orange);
-    color:#fff;
-    font-weight:600;
-  }
+  .chip.active{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:600;}
   .chip:active{transform:scale(0.97);}
 
   .autre-input{margin-top:10px;display:none;}
   .autre-input.show{display:block;}
 
-  .stepper{
-    display:flex;
-    align-items:stretch;
-    gap:10px;
-  }
+  .stepper{display:flex;align-items:stretch;gap:10px;}
   .stepper button{
-    width:46px;
-    border:1.5px solid var(--border);
-    background:#fff;
-    border-radius:10px;
-    font-size:20px;
-    color:var(--ink);
-    cursor:pointer;
+    width:46px;border:1.5px solid var(--border);background:#fff;
+    border-radius:10px;font-size:20px;color:var(--ink);cursor:pointer;
   }
   .stepper button:active{background:var(--orange-soft);border-color:var(--orange);}
-  .stepper input{
-    text-align:center;
-    font-weight:700;
-    font-size:18px;
-  }
+  .stepper input{text-align:center;font-weight:700;font-size:18px;}
   .quick-h{display:flex;gap:8px;margin-top:10px;}
   .quick-h button{
-    flex:1;
-    padding:8px 0;
-    border:1.5px solid var(--border);
-    background:#fff;
-    border-radius:8px;
-    font-size:13px;
-    font-weight:600;
-    color:var(--ink-soft);
-    cursor:pointer;
+    flex:1;padding:8px 0;border:1.5px solid var(--border);background:#fff;
+    border-radius:8px;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;
   }
   .quick-h button:active{background:var(--orange-soft);border-color:var(--orange);color:var(--orange-dark);}
 
-  .status-msg{
-    font-size:13px;
-    color:var(--danger);
-    margin-top:4px;
-    min-height:16px;
-  }
+  .status-msg{font-size:13px;color:var(--danger);margin-top:4px;min-height:16px;}
 
   .save-bar{
-    position:fixed;
-    left:0;right:0;bottom:0;
+    position:fixed;left:0;right:0;bottom:0;
     background:linear-gradient(to top, var(--bg) 60%, transparent);
-    padding:14px 16px 18px;
-    z-index:15;
+    padding:14px 16px 18px;z-index:15;
   }
   .save-bar-inner{max-width:480px;margin:0 auto;}
   #saveBtn{
-    width:100%;
-    background:var(--orange);
-    color:#fff;
-    border:none;
-    padding:16px;
-    border-radius:12px;
-    font-size:16px;
-    font-weight:700;
-    font-family:'Space Grotesk',sans-serif;
-    cursor:pointer;
-    box-shadow:0 4px 14px rgba(232,113,44,0.35);
+    width:100%;background:var(--orange);color:#fff;border:none;padding:16px;
+    border-radius:12px;font-size:16px;font-weight:700;font-family:'Space Grotesk',sans-serif;
+    cursor:pointer;box-shadow:0 4px 14px rgba(232,113,44,0.35);
   }
   #saveBtn:active{background:var(--orange-dark);}
   #saveBtn:disabled{background:#c9c4ba;box-shadow:none;}
 
-  .totals{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    margin-bottom:10px;
-  }
+  .totals{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
   .totals .t-label{font-size:13px;color:var(--ink-soft);font-weight:600;}
   .totals .t-val{font-size:20px;font-weight:700;font-family:'Space Grotesk',sans-serif;}
   .totals .t-val span{color:var(--orange);}
 
   .entry{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:10px 0;
-    border-top:1px solid var(--border);
-    font-size:14px;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 0;border-top:1px solid var(--border);font-size:14px;
   }
   .entry:first-child{border-top:none;}
   .entry .meta{color:var(--ink-soft);}
   .entry .dur{font-weight:700;white-space:nowrap;margin-left:10px;}
-  .pending-dot{
-    display:inline-block;width:7px;height:7px;border-radius:50%;
-    background:var(--orange);margin-right:6px;
-  }
+  .pending-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--orange);margin-right:6px;}
   .empty-hist{color:var(--ink-soft);font-size:13.5px;padding:6px 0;}
 
   .section-title{font-size:13px;font-weight:700;color:var(--ink-soft);margin:0 0 10px;}
 
+  /* Compteur mensuel */
+  .counter-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .btn-ghost{
+    border:1.5px solid var(--border);background:#fff;color:var(--ink-soft);
+    padding:7px 12px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;
+  }
+  .btn-ghost:active{background:var(--orange-soft);border-color:var(--orange);color:var(--orange-dark);}
+  .counter-value{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .counter-value .big{font-size:26px;font-weight:700;font-family:'Space Grotesk',sans-serif;}
+  .counter-value .goal{font-size:14px;color:var(--ink-soft);}
+  .counter-bar{width:100%;height:14px;background:var(--border);border-radius:999px;overflow:hidden;}
+  .counter-bar-fill{height:100%;background:var(--orange);border-radius:999px;transition:width 0.3s ease;width:0%;}
+  .counter-bar-fill.over{background:var(--green);}
+  .counter-status{font-size:13px;color:var(--ink-soft);margin-top:8px;}
+  .counter-note{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  #prevMonthsWrap{display:none;margin-top:14px;border-top:1px solid var(--border);padding-top:10px;}
+
   /* Settings modal */
-  .modal-bg{
-    display:none;
-    position:fixed;inset:0;
-    background:rgba(20,19,17,0.55);
-    z-index:50;
-    align-items:flex-end;
-  }
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(20,19,17,0.55);z-index:50;align-items:flex-end;}
   .modal-bg.show{display:flex;}
-  .modal{
-    background:#fff;
-    width:100%;
-    max-width:480px;
-    margin:0 auto;
-    border-radius:18px 18px 0 0;
-    padding:20px 18px 24px;
-  }
+  .modal{background:#fff;width:100%;max-width:480px;margin:0 auto;border-radius:18px 18px 0 0;padding:20px 18px 24px;}
   .modal h3{margin:0 0 4px;}
   .modal p.hint{font-size:13px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5;}
   .modal-actions{display:flex;gap:10px;margin-top:16px;}
@@ -248,12 +189,10 @@
     flex:1;background:#fff;border:1.5px solid var(--border);
     padding:12px;border-radius:10px;font-weight:600;color:var(--ink);cursor:pointer;
   }
-  .btn-primary{
-    flex:1;background:var(--orange);border:none;color:#fff;
-    padding:12px;border-radius:10px;font-weight:700;cursor:pointer;
-  }
+  .btn-primary{flex:1;background:var(--orange);border:none;color:#fff;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;}
   .sync-line{font-size:12px;color:var(--ink-soft);margin-top:10px;}
   .sync-line b{color:var(--ink);}
+  .field-label-row{display:block;width:100%;margin-top:14px;}
 </style>
 </head>
 <body>
@@ -324,13 +263,32 @@
   </div>
 
   <div class="card">
+    <div class="counter-head">
+      <div class="section-title" style="margin:0;">Compteur mensuel · objectif <span id="goalLabel">40</span> h</div>
+      <button type="button" class="btn-ghost" id="refreshCounter">Actualiser</button>
+    </div>
+    <div class="counter-value">
+      <div class="big"><span id="counterCurrent">0,00</span> h</div>
+      <div class="goal">/ <span id="counterGoalInline">40</span> h</div>
+    </div>
+    <div class="counter-bar"><div class="counter-bar-fill" id="counterBarFill"></div></div>
+    <div class="counter-status" id="counterStatus">Chargement…</div>
+    <div class="counter-note" id="counterNote"></div>
+
+    <button type="button" class="btn-secondary" id="togglePrevMonths" style="width:100%;margin-top:14px;">Voir les mois précédents</button>
+    <div id="prevMonthsWrap">
+      <div id="prevMonthsList"><div class="empty-hist">Pas encore de données.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="totals">
       <div>
         <div class="t-label">Aujourd'hui</div>
         <div class="t-val" id="totalDay"><span>0,00</span> h</div>
       </div>
       <div style="text-align:right;">
-        <div class="t-label">Ce mois-ci</div>
+        <div class="t-label">Ce mois-ci (cet appareil)</div>
         <div class="t-val" id="totalMonth"><span>0,00</span> h</div>
       </div>
     </div>
@@ -352,6 +310,8 @@
     <p class="hint">Colle ici l'URL de déploiement du script Google Apps (Web App) relié à ta feuille de calcul. Voir le fichier Code.gs fourni pour le déployer.</p>
     <label class="field-label">URL du Web App</label>
     <input type="text" id="webhookUrl" placeholder="https://script.google.com/macros/s/.../exec">
+    <label class="field-label field-label-row">Objectif mensuel (h)</label>
+    <input type="number" id="monthlyGoalInput" step="1" min="1">
     <div class="sync-line" id="syncInfo"></div>
     <div class="modal-actions">
       <button class="btn-secondary" id="exportCsv">Exporter CSV</button>

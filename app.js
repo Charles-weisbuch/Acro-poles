@@ -4,8 +4,13 @@
   var LS_ENTRIES = "ap_entries";
   var LS_WEBHOOK = "ap_webhook_url";
   var LS_PERSONNES = "ap_personnes";
+  var LS_GOAL = "ap_monthly_goal";
+  var LS_TOTALS_CACHE = "ap_totals_cache";
+
+  var MONTH_NAMES = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 
   var state = { lieu: null, tache: null };
+  var lastTotalsPayload = null; // { year, persons: [{name, months[12], total}] }
 
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
 
@@ -24,11 +29,8 @@
   }
 
   function loadEntries() {
-    try {
-      return JSON.parse(localStorage.getItem(LS_ENTRIES) || "[]");
-    } catch (e) {
-      return [];
-    }
+    try { return JSON.parse(localStorage.getItem(LS_ENTRIES) || "[]"); }
+    catch (e) { return []; }
   }
 
   function saveEntries(list) {
@@ -36,11 +38,8 @@
   }
 
   function loadPersonnes() {
-    try {
-      return JSON.parse(localStorage.getItem(LS_PERSONNES) || "[]");
-    } catch (e) {
-      return [];
-    }
+    try { return JSON.parse(localStorage.getItem(LS_PERSONNES) || "[]"); }
+    catch (e) { return []; }
   }
 
   function rememberPersonne(name) {
@@ -63,6 +62,11 @@
       opt.value = n;
       dl.appendChild(opt);
     });
+  }
+
+  function getGoal() {
+    var v = parseFloat(localStorage.getItem(LS_GOAL));
+    return isNaN(v) || v <= 0 ? 40 : v;
   }
 
   // ---------- Chips ----------
@@ -100,7 +104,7 @@
     document.getElementById("fHeures").value = Math.round(v * 100) / 100;
   }
 
-  // ---------- Rendering ----------
+  // ---------- Rendering (local device history) ----------
 
   function render() {
     var entries = loadEntries();
@@ -144,6 +148,102 @@
     });
   }
 
+  // ---------- Monthly counter (from the Sheet, via Apps Script) ----------
+
+  function getCachedTotals() {
+    try { return JSON.parse(localStorage.getItem(LS_TOTALS_CACHE) || "null"); }
+    catch (e) { return null; }
+  }
+
+  function setCachedTotals(payload) {
+    localStorage.setItem(LS_TOTALS_CACHE, JSON.stringify({ payload: payload, ts: Date.now() }));
+  }
+
+  function currentPersonName() {
+    return document.getElementById("fPersonne").value.trim() || "Charles";
+  }
+
+  function renderCounter(payload, fromCacheTs) {
+    var goal = getGoal();
+    document.getElementById("goalLabel").textContent = fmtH(goal).replace(",00", "");
+    document.getElementById("counterGoalInline").textContent = fmtH(goal).replace(",00", "");
+
+    if (!payload) {
+      document.getElementById("counterStatus").textContent =
+        "Pas encore de données (connecte l'app une première fois en ligne).";
+      return;
+    }
+
+    var monthIdx = new Date().getMonth(); // 0 = Janvier
+    var person = (payload.persons || []).filter(function (p) { return p.name === currentPersonName(); })[0];
+    var current = person ? (person.months[monthIdx] || 0) : 0;
+
+    document.getElementById("counterCurrent").textContent = fmtH(current);
+
+    var pct = Math.max(0, Math.min(100, Math.round((current / goal) * 100)));
+    var fill = document.getElementById("counterBarFill");
+    fill.style.width = pct + "%";
+    fill.classList.toggle("over", current >= goal);
+
+    var remaining = goal - current;
+    var statusEl = document.getElementById("counterStatus");
+    if (!person) {
+      statusEl.textContent = "Pas encore de données pour \u00ab " + currentPersonName() + " \u00bb.";
+    } else if (remaining > 0) {
+      statusEl.textContent = "Il reste " + fmtH(remaining) + " h ce mois-ci.";
+    } else {
+      statusEl.textContent = "Objectif atteint (+" + fmtH(-remaining) + " h).";
+    }
+
+    var noteEl = document.getElementById("counterNote");
+    noteEl.textContent = fromCacheTs
+      ? "Dernière synchro : " + new Date(fromCacheTs).toLocaleString("fr-FR")
+      : "";
+
+    // Mois precedents
+    var list = document.getElementById("prevMonthsList");
+    list.innerHTML = "";
+    if (person) {
+      for (var m = monthIdx - 1; m >= 0; m--) {
+        var row = document.createElement("div");
+        row.className = "entry";
+        row.innerHTML =
+          '<div class="meta">' + MONTH_NAMES[m] + " " + payload.year + '</div>' +
+          '<div class="dur">' + fmtH(person.months[m] || 0) + " h</div>";
+        list.appendChild(row);
+      }
+    }
+    if (!list.children.length) {
+      list.innerHTML = '<div class="empty-hist">Pas encore de données pour les mois précédents.</div>';
+    }
+  }
+
+  function fetchCounter() {
+    var cached = getCachedTotals();
+    if (cached) {
+      lastTotalsPayload = cached.payload;
+      renderCounter(cached.payload, cached.ts);
+    } else {
+      renderCounter(null);
+    }
+
+    var url = getWebhook();
+    if (!url || !navigator.onLine) return;
+
+    fetch(url + "?action=totals")
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data && data.status === "ok") {
+          lastTotalsPayload = data;
+          setCachedTotals(data);
+          renderCounter(data, null);
+        }
+      })
+      .catch(function () {
+        // on garde l'affichage deja a l'ecran (cache ou precedent)
+      });
+  }
+
   // ---------- Save ----------
 
   function showStatus(msg) {
@@ -181,7 +281,6 @@
     saveEntries(entries);
     rememberPersonne(personne);
 
-    // reset lieu/tache/heures for next entry, keep date + personne
     state.lieu = null;
     state.tache = null;
     resetChips("lieuChips");
@@ -196,7 +295,7 @@
     syncPending();
   }
 
-  // ---------- Sync ----------
+  // ---------- Sync (ecriture) ----------
 
   function getWebhook() {
     return localStorage.getItem(LS_WEBHOOK) || "";
@@ -207,11 +306,9 @@
     var pending = entries.filter(function (e) { return !e.synced; }).length;
     var el = document.getElementById("syncInfo");
     if (!el) return;
-    if (pending === 0) {
-      el.innerHTML = "Tout est synchronisé.";
-    } else {
-      el.innerHTML = "<b>" + pending + "</b> saisie(s) en attente d'envoi.";
-    }
+    el.innerHTML = pending === 0
+      ? "Tout est synchronisé."
+      : "<b>" + pending + "</b> saisie(s) en attente d'envoi.";
   }
 
   function syncPending() {
@@ -239,11 +336,10 @@
         .then(function (data) {
           if (data && data.status === "ok") {
             markSynced(entry.id);
+            fetchCounter(); // la saisie vient de modifier le tableau "Total personne" cote feuille
           }
         })
-        .catch(function () {
-          // stays pending, will retry later
-        });
+        .catch(function () {});
     });
   }
 
@@ -303,10 +399,23 @@
 
     document.getElementById("saveBtn").addEventListener("click", onSave);
 
+    // Compteur mensuel
+    document.getElementById("refreshCounter").addEventListener("click", fetchCounter);
+    document.getElementById("togglePrevMonths").addEventListener("click", function () {
+      var wrap = document.getElementById("prevMonthsWrap");
+      var show = wrap.style.display !== "block";
+      wrap.style.display = show ? "block" : "none";
+      this.textContent = show ? "Masquer les mois précédents" : "Voir les mois précédents";
+    });
+    document.getElementById("fPersonne").addEventListener("change", function () {
+      if (lastTotalsPayload) renderCounter(lastTotalsPayload, null);
+    });
+
     // Settings modal
     var modal = document.getElementById("settingsModal");
     document.getElementById("openSettings").addEventListener("click", function () {
       document.getElementById("webhookUrl").value = getWebhook();
+      document.getElementById("monthlyGoalInput").value = getGoal();
       updateSyncInfo();
       modal.classList.add("show");
     });
@@ -315,9 +424,12 @@
     });
     document.getElementById("saveSettings").addEventListener("click", function () {
       var url = document.getElementById("webhookUrl").value.trim();
+      var goal = parseFloat(document.getElementById("monthlyGoalInput").value);
       localStorage.setItem(LS_WEBHOOK, url);
+      if (!isNaN(goal) && goal > 0) localStorage.setItem(LS_GOAL, goal);
       modal.classList.remove("show");
       syncPending();
+      fetchCounter();
     });
     document.getElementById("exportCsv").addEventListener("click", exportCsv);
     document.getElementById("clearLocal").addEventListener("click", function () {
@@ -328,10 +440,14 @@
       }
     });
 
-    window.addEventListener("online", syncPending);
+    window.addEventListener("online", function () {
+      syncPending();
+      fetchCounter();
+    });
 
     render();
     syncPending();
+    fetchCounter();
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js").catch(function () {});

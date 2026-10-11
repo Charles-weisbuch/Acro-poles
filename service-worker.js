@@ -1,4 +1,4 @@
-var CACHE_NAME = "acro-poles-v2";
+var CACHE_NAME = "acro-poles-v3";
 var ASSETS = [
   "./",
   "./index.html",
@@ -32,7 +32,7 @@ self.addEventListener("activate", function (event) {
 self.addEventListener("fetch", function (event) {
   var req = event.request;
 
-  // Never cache API/sync calls (Google Apps Script) - always go to network.
+  // Ne jamais mettre en cache les appels vers Google Apps Script (saisie + compteur).
   if (req.method !== "GET" || req.url.indexOf("script.google.com") !== -1) {
     return;
   }
