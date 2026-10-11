@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>acro-poles — Suivi des heures</title>
+<meta name="theme-color" content="#232220">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f3f2ee;
+    --surface:#ffffff;
+    --ink:#232220;
+    --ink-soft:#726e67;
+    --border:#ddd8cf;
+    --header:#232220;
+    --header-soft:#37342f;
+    --orange:#e8712c;
+    --orange-dark:#c65a1e;
+    --orange-soft:#fbe4d2;
+    --danger:#b8442c;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:110px;
+  }
+  h1,h2,h3,.brand{font-family:'Space Grotesk',system-ui,sans-serif;}
+
+  header{
+    background:var(--header);
+    color:#fff;
+    padding:18px 18px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;
+    top:0;
+    z-index:20;
+    border-bottom:3px solid var(--orange);
+  }
+  header .brand{
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  header .brand span{color:var(--orange);}
+  header .sub{
+    font-size:12.5px;
+    color:#bdb9b1;
+    margin-top:2px;
+  }
+  .gear-btn{
+    background:var(--header-soft);
+    border:1px solid #47433d;
+    color:#fff;
+    width:40px;height:40px;
+    border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+    cursor:pointer;
+  }
+  .gear-btn:active{background:var(--orange);}
+
+  main{
+    max-width:480px;
+    margin:0 auto;
+    padding:18px 16px 8px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+
+  label.field-label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  input[type="date"],input[type="text"],input[type="number"]{
+    width:100%;
+    font-family:inherit;
+    font-size:16px;
+    padding:11px 12px;
+    border:1.5px solid var(--border);
+    border-radius:10px;
+    background:#fff;
+    color:var(--ink);
+  }
+  input:focus{outline:none;border-color:var(--orange);}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;}
+  .chip{
+    border:1.5px solid var(--border);
+    background:#fff;
+    color:var(--ink);
+    padding:10px 14px;
+    border-radius:999px;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    user-select:none;
+  }
+  .chip.active{
+    background:var(--orange);
+    border-color:var(--orange);
+    color:#fff;
+    font-weight:600;
+  }
+  .chip:active{transform:scale(0.97);}
+
+  .autre-input{margin-top:10px;display:none;}
+  .autre-input.show{display:block;}
+
+  .stepper{
+    display:flex;
+    align-items:stretch;
+    gap:10px;
+  }
+  .stepper button{
+    width:46px;
+    border:1.5px solid var(--border);
+    background:#fff;
+    border-radius:10px;
+    font-size:20px;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .stepper button:active{background:var(--orange-soft);border-color:var(--orange);}
+  .stepper input{
+    text-align:center;
+    font-weight:700;
+    font-size:18px;
+  }
+  .quick-h{display:flex;gap:8px;margin-top:10px;}
+  .quick-h button{
+    flex:1;
+    padding:8px 0;
+    border:1.5px solid var(--border);
+    background:#fff;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .quick-h button:active{background:var(--orange-soft);border-color:var(--orange);color:var(--orange-dark);}
+
+  .status-msg{
+    font-size:13px;
+    color:var(--danger);
+    margin-top:4px;
+    min-height:16px;
+  }
+
+  .save-bar{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    background:linear-gradient(to top, var(--bg) 60%, transparent);
+    padding:14px 16px 18px;
+    z-index:15;
+  }
+  .save-bar-inner{max-width:480px;margin:0 auto;}
+  #saveBtn{
+    width:100%;
+    background:var(--orange);
+    color:#fff;
+    border:none;
+    padding:16px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:700;
+    font-family:'Space Grotesk',sans-serif;
+    cursor:pointer;
+    box-shadow:0 4px 14px rgba(232,113,44,0.35);
+  }
+  #saveBtn:active{background:var(--orange-dark);}
+  #saveBtn:disabled{background:#c9c4ba;box-shadow:none;}
+
+  .totals{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:10px;
+  }
+  .totals .t-label{font-size:13px;color:var(--ink-soft);font-weight:600;}
+  .totals .t-val{font-size:20px;font-weight:700;font-family:'Space Grotesk',sans-serif;}
+  .totals .t-val span{color:var(--orange);}
+
+  .entry{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 0;
+    border-top:1px solid var(--border);
+    font-size:14px;
+  }
+  .entry:first-child{border-top:none;}
+  .entry .meta{color:var(--ink-soft);}
+  .entry .dur{font-weight:700;white-space:nowrap;margin-left:10px;}
+  .pending-dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--orange);margin-right:6px;
+  }
+  .empty-hist{color:var(--ink-soft);font-size:13.5px;padding:6px 0;}
+
+  .section-title{font-size:13px;font-weight:700;color:var(--ink-soft);margin:0 0 10px;}
+
+  /* Settings modal */
+  .modal-bg{
+    display:none;
+    position:fixed;inset:0;
+    background:rgba(20,19,17,0.55);
+    z-index:50;
+    align-items:flex-end;
+  }
+  .modal-bg.show{display:flex;}
+  .modal{
+    background:#fff;
+    width:100%;
+    max-width:480px;
+    margin:0 auto;
+    border-radius:18px 18px 0 0;
+    padding:20px 18px 24px;
+  }
+  .modal h3{margin:0 0 4px;}
+  .modal p.hint{font-size:13px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5;}
+  .modal-actions{display:flex;gap:10px;margin-top:16px;}
+  .btn-secondary{
+    flex:1;background:#fff;border:1.5px solid var(--border);
+    padding:12px;border-radius:10px;font-weight:600;color:var(--ink);cursor:pointer;
+  }
+  .btn-primary{
+    flex:1;background:var(--orange);border:none;color:#fff;
+    padding:12px;border-radius:10px;font-weight:700;cursor:pointer;
+  }
+  .sync-line{font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .sync-line b{color:var(--ink);}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="brand">acro<span>-</span>poles</div>
+    <div class="sub">Suivi des heures</div>
+  </div>
+  <button class="gear-btn" id="openSettings" aria-label="Réglages">⚙</button>
+</header>
+
+<main>
+
+  <div class="card">
+    <div class="row2" style="margin-bottom:14px;">
+      <div>
+        <label class="field-label">Date</label>
+        <input type="date" id="fDate">
+      </div>
+      <div>
+        <label class="field-label">Personne</label>
+        <input type="text" id="fPersonne" list="personneList" placeholder="Charles">
+        <datalist id="personneList"></datalist>
+      </div>
+    </div>
+
+    <label class="field-label">Lieu</label>
+    <div class="chips" id="lieuChips" data-group="lieu">
+      <div class="chip" data-val="Maison">Maison</div>
+      <div class="chip" data-val="Bureau Echirolles">Bureau Echirolles</div>
+      <div class="chip" data-val="Bureau Tullins">Bureau Tullins</div>
+      <div class="chip" data-val="Terrain">Terrain</div>
+      <div class="chip" data-val="Autre">Autre</div>
+    </div>
+    <div class="autre-input" id="lieuAutreWrap">
+      <input type="text" id="lieuAutre" placeholder="Préciser le lieu">
+    </div>
+
+    <label class="field-label" style="margin-top:16px;">Tâche</label>
+    <div class="chips" id="tacheChips" data-group="tache">
+      <div class="chip" data-val="Prise de rendez-vous">Prise de rendez-vous</div>
+      <div class="chip" data-val="Administratif">Administratif</div>
+      <div class="chip" data-val="Relevé terrain">Relevé terrain</div>
+      <div class="chip" data-val="Etablissement de devis">Etablissement de devis</div>
+      <div class="chip" data-val="Batappli (ouvrage, prix, ...)">Batappli (ouvrage, prix, ...)</div>
+      <div class="chip" data-val="Réunion">Réunion</div>
+      <div class="chip" data-val="Autre">Autre</div>
+    </div>
+    <div class="autre-input" id="tacheAutreWrap">
+      <input type="text" id="tacheAutre" placeholder="Préciser la tâche">
+    </div>
+
+    <label class="field-label" style="margin-top:16px;">Temps passé (h)</label>
+    <div class="stepper">
+      <button type="button" id="hMinus">−</button>
+      <input type="number" id="fHeures" step="0.25" min="0" placeholder="0,00">
+      <button type="button" id="hPlus">+</button>
+    </div>
+    <div class="quick-h">
+      <button type="button" data-add="0.25">+0,25</button>
+      <button type="button" data-add="0.5">+0,5</button>
+      <button type="button" data-add="1">+1</button>
+      <button type="button" data-add="2">+2</button>
+    </div>
+
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <div class="card">
+    <div class="totals">
+      <div>
+        <div class="t-label">Aujourd'hui</div>
+        <div class="t-val" id="totalDay"><span>0,00</span> h</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="t-label">Ce mois-ci</div>
+        <div class="t-val" id="totalMonth"><span>0,00</span> h</div>
+      </div>
+    </div>
+    <div class="section-title" id="histTitle">Historique du jour</div>
+    <div id="histList"><div class="empty-hist">Aucune saisie pour l'instant.</div></div>
+  </div>
+
+</main>
+
+<div class="save-bar">
+  <div class="save-bar-inner">
+    <button id="saveBtn">Enregistrer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="settingsModal">
+  <div class="modal">
+    <h3>Réglages</h3>
+    <p class="hint">Colle ici l'URL de déploiement du script Google Apps (Web App) relié à ta feuille de calcul. Voir le fichier Code.gs fourni pour le déployer.</p>
+    <label class="field-label">URL du Web App</label>
+    <input type="text" id="webhookUrl" placeholder="https://script.google.com/macros/s/.../exec">
+    <div class="sync-line" id="syncInfo"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="exportCsv">Exporter CSV</button>
+      <button class="btn-secondary" id="clearLocal">Vider l'historique</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="closeSettings">Fermer</button>
+      <button class="btn-primary" id="saveSettings">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
